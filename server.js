@@ -1,25 +1,26 @@
-const express = require('express');
-const http = require('http');
+const express = require("express");
+const http = require("http");
 const app = express();
 const server = http.createServer(app);
-const socket = require('socket.io');
+const socket = require("socket.io");
 const io = socket(server);
 
 const rooms = {};
 
 const PORT = process.env.PORT || 8000;
 
-app.get('/user', function (req, res) {
-  console.log('/user request called');
-  res.send('Welcome to GeeksforGeeks');
+app.get("/user", function (req, res) {
+  console.log("/user request called");
+  res.send("Welcome to GeeksforGeeks");
 });
 
-io.on('connection', socket => {
+io.on("connection", (socket) => {
   /*
         If a peer is initiator, he will create a new room
         otherwise if peer is receiver he will join the room
     */
-  socket.on('join room', roomID => {
+  socket.on("join room", (roomID) => {
+    console.log("join room", socket.id);
     if (rooms[roomID]) {
       // Receiving peer joins the room
       rooms[roomID].push(socket.id);
@@ -34,32 +35,39 @@ io.on('connection', socket => {
 
             For initiating peer it would be receiving peer and vice versa.
         */
-    const otherUser = rooms[roomID].find(id => id !== socket.id);
+    const otherUser = rooms[roomID].find((id) => id !== socket.id);
     if (otherUser) {
-      socket.emit('other user', otherUser);
-      socket.to(otherUser).emit('user joined', socket.id);
+      console.log("other user", otherUser);
+      console.log("cuurent user id ", socket.id);
+      socket.emit("other user", otherUser);
+      socket.to(otherUser).emit("user joined", socket.id);
     }
   });
 
   /*
         The initiating peer offers a connection
     */
-  socket.on('offer', payload => {
-    io.to(payload.target).emit('offer', payload);
+  socket.on("offer", (payload) => {
+    console.log("on offer payload", payload);
+    io.to(payload.target).emit("offer", payload);
   });
 
   /*
         The receiving peer answers (accepts) the offer
     */
-  socket.on('answer', payload => {
-    io.to(payload.target).emit('answer', payload);
+  socket.on("answer", (payload) => {
+    console.log("on answer payload", payload);
+
+    io.to(payload.target).emit("answer", payload);
   });
 
-  socket.on('ice-candidate', incoming => {
-    io.to(incoming.target).emit('ice-candidate', incoming.candidate);
+  socket.on("ice-candidate", (incoming) => {
+    console.log("on ice-candidate incoming", incoming);
+
+    io.to(incoming.target).emit("ice-candidate", incoming.candidate);
   });
 });
 
-server.listen(PORT, e => {
-  console.log('Server is up and running on Port 8000');
+server.listen(PORT, (e) => {
+  console.log("Server is up and running on Port 8000");
 });
