@@ -19,7 +19,14 @@ io.on("connection", (socket) => {
         If a peer is initiator, he will create a new room
         otherwise if peer is receiver he will join the room
     */
-  socket.on("join room", (roomID) => {
+  console.log("join room", socket.id);
+
+  socket.on("test-response", (roomID) => {
+    console.log(roomID);
+    socket.emit("test-response1", roomID);
+  });
+
+  socket.on("join_room", (roomID) => {
     console.log("join room", socket.id);
     if (rooms[roomID]) {
       // Receiving peer joins the room
