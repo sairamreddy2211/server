@@ -14,6 +14,11 @@ app.get("/user", function (req, res) {
   res.send("Welcome to GeeksforGeeks");
 });
 
+app.get("/amol", function (req, res) {
+  console.log("/amol request called");
+  res.send("amol is a good boy");
+});
+
 io.on("connection", (socket) => {
   /*
         If a peer is initiator, he will create a new room
